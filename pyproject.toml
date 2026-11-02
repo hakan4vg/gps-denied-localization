@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpsloc"
+version = "0.1.0"
+description = "GPS-denied drone localization from a nadir camera image and an onboard satellite map"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "rasterio",
+    "opencv-python-headless",
+    "scikit-image",
+    "pandas",
+    "matplotlib",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "gdown"]
+
+[project.scripts]
+gpsloc = "gpsloc.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
