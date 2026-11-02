@@ -91,6 +91,19 @@ localizer (milestone 3).
    03/04 (sd 1.5%). The same ~3-4% scale constant shows up in both: most likely the 3850 px focal
    length (estimated, not from a spec sheet), possibly a geoid/ellipsoid height offset.
 
+9. **Altitude from terrain parallax doesn't work at these heights.** `gpsloc relief`
+   (`runs/20261103-000718_relief`) gave an estimate for only 9 of ~190 frames, all too low:
+
+   | Flight | Frames | Estimated | Median error |
+   |---|---|---|---|
+   | 03 | 63 | 1 | −112% |
+   | 04 | 60 | 0 | – |
+   | 06 | 6 | 4 | −24% |
+   | 11 | 60 | 4 | −29% |
+
+   Relief within a footprint is only 5-7 m sd at 300-770 m height above ground, too little
+   parallax to measure. Height should come from the map-match scale (finding 8, within ~3%).
+
 ## What to do next, by expected gain
 
 1. **Wire it into the localizer:** vision nadir (Lucas-Kanade 480 px, k±1), DEM slope correction
