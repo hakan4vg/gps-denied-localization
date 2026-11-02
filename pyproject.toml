@@ -20,6 +20,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "gdown"]
+# Learned road segmentation (analysis). Install torch from the CPU index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+seg = ["torch", "transformers", "safetensors"]
 
 [project.scripts]
 gpsloc = "gpsloc.cli:main"

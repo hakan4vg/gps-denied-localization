@@ -10,3 +10,4 @@ data/
 *.zip
 ._*
 .DS_Store
+!docs/img/*.jpg

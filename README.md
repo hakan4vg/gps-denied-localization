@@ -14,7 +14,8 @@ Target hardware is CPU-only (Raspberry Pi 5 / Jetson class).
 ## Status
 
 - [x] Milestone 1: dataset loader, scoring harness, trivial baselines
-- [ ] Milestone 2: landmark extraction and drone/satellite repeatability (go/no-go)
+- [x] Milestone 2: landmark extraction and drone/satellite repeatability (go/no-go):
+  **no-go for road-intersection quads**, see [docs/milestone2-repeatability.md](docs/milestone2-repeatability.md)
 - [ ] Milestone 3: quad hashing on one flight, no metadata
 - [ ] Milestone 4: evaluation across flights and terrain types
 - [ ] Milestone 5: heading, altitude, speed
@@ -39,6 +40,10 @@ gpsloc eval --flight 03 --method map-center --step 10
 ```
 
 `eval` writes `summary.json` and per-frame `frames.csv` under `runs/`.
+
+```bash
+gpsloc repeat --flight 03 --extractor corners --step 8   # landmark repeatability (analysis)
+```
 
 ## Rules the harness enforces
 
