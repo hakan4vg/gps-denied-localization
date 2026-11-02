@@ -77,6 +77,20 @@ def cmd_eval(args: argparse.Namespace) -> None:
         print(f"  results: {out_dir}")
 
 
+def cmd_repeat(args: argparse.Namespace) -> None:
+    from . import repeatability
+
+    for fid in args.flight or available_flights(args.data):
+        flight = Flight(args.data, fid)
+        for name in args.extractor:
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            out_dir = Path(args.out) / f"{stamp}_repeat_{name}_{fid}"
+            s = repeatability.run(flight, name, args.step, args.gsd, out_dir, Path(args.out) / "cache",
+                                  n_viz=args.viz, limit=args.limit)
+            print(repeatability.format_summary(s))
+            print(f"  results: {out_dir}")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="gpsloc")
     p.add_argument("--data", type=Path, default=DEFAULT_DATA, help="UAV-VisLoc root folder")
@@ -96,7 +110,22 @@ def main(argv: list[str] | None = None) -> None:
     e.add_argument("--out", default="runs", help="output folder")
     e.set_defaults(func=cmd_eval)
 
+    r = sub.add_parser("repeat", help="landmark repeatability between drone and map (analysis)")
+    r.add_argument("--flight", action="append", help="flight id (repeatable; default all)")
+    r.add_argument("--extractor", action="append", default=None,
+                   help="corners, lsd or roads (repeatable; default all)")
+    r.add_argument("--step", type=int, default=8, help="use every Nth frame")
+    r.add_argument("--limit", type=int, help="max aligned frames per flight")
+    r.add_argument("--gsd", type=float, default=1.0, help="working resolution, meters per pixel")
+    r.add_argument("--viz", type=int, default=4, help="number of frames to draw")
+    r.add_argument("--out", default="runs", help="output folder")
+    r.set_defaults(func=cmd_repeat)
+
     args = p.parse_args(argv)
+    if getattr(args, "cmd", None) == "repeat" and not args.extractor:
+        from .landmarks import EXTRACTORS
+
+        args.extractor = list(EXTRACTORS)
     args.func(args)
 
 
