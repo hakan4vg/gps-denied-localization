@@ -91,6 +91,16 @@ def cmd_repeat(args: argparse.Namespace) -> None:
             print(f"  results: {out_dir}")
 
 
+def cmd_motion(args: argparse.Namespace) -> None:
+    from . import motion_eval
+
+    flights = [Flight(args.data, f) for f in (args.flight or available_flights(args.data))]
+    out_dir = Path(args.out) / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_motion"
+    s = motion_eval.run(flights, args.step, out_dir, Path(args.out) / "cache")
+    print(motion_eval.format_summary(s))
+    print(f"  results: {out_dir}")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="gpsloc")
     p.add_argument("--data", type=Path, default=DEFAULT_DATA, help="UAV-VisLoc root folder")
@@ -120,6 +130,12 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--viz", type=int, default=4, help="number of frames to draw")
     r.add_argument("--out", default="runs", help="output folder")
     r.set_defaults(func=cmd_repeat)
+
+    mo = sub.add_parser("motion", help="frame-to-frame motion and tilt vs CSV (analysis)")
+    mo.add_argument("--flight", action="append", help="flight id (repeatable; default all)")
+    mo.add_argument("--step", type=int, default=8, help="use every Nth frame (and its successor)")
+    mo.add_argument("--out", default="runs", help="output folder")
+    mo.set_defaults(func=cmd_motion)
 
     args = p.parse_args(argv)
     if getattr(args, "cmd", None) == "repeat" and not args.extractor:
