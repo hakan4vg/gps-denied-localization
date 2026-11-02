@@ -18,6 +18,9 @@ Target hardware is CPU-only (Raspberry Pi 5 / Jetson class).
   **no-go for road-intersection quads**, see [docs/milestone2-repeatability.md](docs/milestone2-repeatability.md)
 - [x] Visual odometry from frame pairs: tilt, speed, direction; nadir correction cuts position
   error from ~20 m to ~8-9 m, see [docs/visual-odometry.md](docs/visual-odometry.md)
+- [x] Error budget: vision tilt + DEM slope correction gives 7-9 m on flat and held-out hilly
+  flights, CSV attitude does not transfer between flights, DEM roughness gate flags rough terrain,
+  see [docs/error-budget.md](docs/error-budget.md)
 - [ ] Milestone 3: quad hashing on one flight, no metadata
 - [ ] Milestone 4: evaluation across flights and terrain types
 - [ ] Milestone 5: heading, altitude, speed
