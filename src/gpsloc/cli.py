@@ -101,6 +101,34 @@ def cmd_motion(args: argparse.Namespace) -> None:
     print(f"  results: {out_dir}")
 
 
+def cmd_vocheck(args: argparse.Namespace) -> None:
+    from . import vo_validation
+
+    flights = [Flight(args.data, f) for f in (args.flight or available_flights(args.data))]
+    out_dir = Path(args.out) / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_vocheck"
+    s = vo_validation.run(flights, args.step, out_dir, Path(args.out) / "cache")
+    print(vo_validation.format_summary(s))
+    print(f"  results: {out_dir}")
+
+
+def cmd_wind(args: argparse.Namespace) -> None:
+    from . import wind
+
+    flights = [Flight(args.data, f) for f in (args.flight or available_flights(args.data))]
+    out_dir = Path(args.out) / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_wind"
+    wind.run(flights, out_dir, args.width)
+    print(f"  results: {out_dir}")
+
+
+def cmd_relief(args: argparse.Namespace) -> None:
+    from . import relief
+
+    flights = [Flight(args.data, f) for f in (args.flight or available_flights(args.data))]
+    out_dir = Path(args.out) / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}_relief"
+    relief.run(flights, args.step, out_dir, Path(args.out) / "cache", args.width)
+    print(f"  results: {out_dir}")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="gpsloc")
     p.add_argument("--data", type=Path, default=DEFAULT_DATA, help="UAV-VisLoc root folder")
@@ -136,6 +164,25 @@ def main(argv: list[str] | None = None) -> None:
     mo.add_argument("--step", type=int, default=8, help="use every Nth frame (and its successor)")
     mo.add_argument("--out", default="runs", help="output folder")
     mo.set_defaults(func=cmd_motion)
+
+    vc = sub.add_parser("vocheck", help="validate nadir correction: center vs CSV tilt vs vision tilt")
+    vc.add_argument("--flight", action="append", help="flight id (repeatable; default all)")
+    vc.add_argument("--step", type=int, default=8, help="use every Nth frame")
+    vc.add_argument("--out", default="runs", help="output folder")
+    vc.set_defaults(func=cmd_vocheck)
+
+    wd = sub.add_parser("wind", help="airspeed and wind from camera motion (vs GPS + compass)")
+    wd.add_argument("--flight", action="append", help="flight id (repeatable; default all)")
+    wd.add_argument("--width", type=int, default=480, help="tracking resolution (px)")
+    wd.add_argument("--out", default="runs", help="output folder")
+    wd.set_defaults(func=cmd_wind)
+
+    rl = sub.add_parser("relief", help="altitude from parallax relief vs DEM (analysis)")
+    rl.add_argument("--flight", action="append", help="flight id (repeatable; default all)")
+    rl.add_argument("--step", type=int, default=8, help="use every Nth frame")
+    rl.add_argument("--width", type=int, default=640, help="tracking resolution (px)")
+    rl.add_argument("--out", default="runs", help="output folder")
+    rl.set_defaults(func=cmd_relief)
 
     args = p.parse_args(argv)
     if getattr(args, "cmd", None) == "repeat" and not args.extractor:

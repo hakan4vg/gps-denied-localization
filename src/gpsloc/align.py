@@ -69,10 +69,13 @@ def align_frame(
     search_radius_m: float = 80.0,
     min_inliers: int = 15,
 ) -> Alignment:
-    height = frame.sensors.get("height")
+    from .dem import usable_agl
+
+    # CSV height is above sea level; use height above ground where a DEM tile is available.
+    height = usable_agl(frame)
     heading = frame.sensors.get("Phi1")
     if height is None or heading is None:
-        return Alignment(False, None, 0, note="missing height/heading")
+        return Alignment(False, None, 0, note="missing or implausible height/heading")
     img = frame.load_image() if image is None else image
     gsd_map = sat_map.gsd_m()
     gsd_drone = height / FOCAL_PX
